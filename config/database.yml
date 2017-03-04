@@ -1,0 +1,7 @@
+
+adapter: 'mysql2'
+host: 'localhost'
+username: 'root'
+password: ''
+database: 'remote_ctrl'
+timeout: 5000

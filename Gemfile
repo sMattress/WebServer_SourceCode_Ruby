@@ -1,0 +1,7 @@
+source 'https://gems.ruby-china.org/'
+gem 'activerecord', '>=5.0.0'
+gem 'mysql2', '>=0.4.4'
+gem 'sinatra', '>=1.4.7'
+gem 'redis', '>=3.3.1'
+gem 'thin', '>=1.7.0'
+gem 'rack-contrib', '>=1.4.0'

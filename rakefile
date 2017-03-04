@@ -1,0 +1,40 @@
+$LOAD_PATH << '.'
+
+require 'active_record'
+require 'zlib'
+require 'yaml'
+
+namespace :server do
+
+  task :bundle do
+    sh 'make -C ./redis'
+    sh 'make install -C ./redis/src'
+    sh './redis/src/redis-server &'
+    sh 'gem install bundler -v 1.11.0'
+    sh 'bundle install'
+  end
+
+  task :deploy => :bundle do
+    Rake::Task['db:migrate'].invoke
+  end
+
+  task :run do
+    config = YAML::load(File.open('config/server.yml'))
+    cmd = ''
+    cmd += " -a #{config['host']}" unless config.blank?
+    cmd += " -p #{config['port']}" unless config.blank?
+    sh 'nohup thin start  --ssl --ssl-key-file ./.certificate/private.key --ssl-cert-file ./.certificate/certificate.crt' + cmd + ' &'
+  end
+
+  task :close do
+    sh 'ps -ef |grep "thin start" |grep -v grep |awk "{print $2}" |xargs kill -9'
+  end
+
+end
+
+namespace :db do
+  task :migrate do
+    ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml')))
+    ActiveRecord::Migrator.migrate('src/db/migrate', ENV['VERSION'] ? ENV['VERSION'].to_i : nil)
+  end
+end
